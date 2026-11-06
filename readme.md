@@ -2,6 +2,8 @@
 
 作者：山猫
 
+[市场封面](https://github.com/smilemonk/shanmao-merge-export-toonflow/blob/main/docs/cover.png) · [插件界面截图（示例数据）](https://github.com/smilemonk/shanmao-merge-export-toonflow/blob/main/docs/screenshot.png)
+
 把 Toonflow 画布上视频节点当前显示的素材合并导出为一个 MP4 文件。
 
 ## 用法
