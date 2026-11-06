@@ -1,8 +1,0 @@
-{
-  "type": "node",
-  "name": "shanmaoMergeExport",
-  "displayName": "合并导出视频",
-  "author": "山猫",
-  "github": "https://github.com/smilemonk/Toonflow",
-  "description": "把画布上视频节点当前显示的素材按名称顺序合并导出成一个视频。各段参数一致时直接流拷贝拼接；不一致时可选择以哪一档参数为准，其余段自动转码对齐后拼接。"
-}

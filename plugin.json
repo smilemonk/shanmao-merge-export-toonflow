@@ -1,0 +1,8 @@
+{
+  "type": "node",
+  "name": "shanmaoMergeExport",
+  "displayName": "合并导出视频",
+  "author": "山猫",
+  "github": "https://github.com/smilemonk/shanmao-merge-export-toonflow",
+  "description": "按画布视频节点顺序合并导出 MP4。轨道参数一致时流拷贝，异档经确认后可转码对齐。"
+}
