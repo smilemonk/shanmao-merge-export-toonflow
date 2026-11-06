@@ -1,5 +1,5 @@
 <template>
-  <nodeSkeleton v-bind="nodeProps">
+  <nodeSkeleton v-bind="nodeProps" class="shanmao-merge-export">
     <div class="mergeExport" :class="{ resized }">
       <!-- 头部统计 + 全选 -->
       <div class="headRow">
@@ -450,6 +450,7 @@ nodeTools.register({
 </script>
 
 <style scoped>
+:global(.nodeSkeleton.shanmao-merge-export:not(.documentNode)) { width: 220px; }
 .mergeExport { display: flex; flex-direction: column; gap: 6px; font-size: 12px; height: 100%; min-height: 0; box-sizing: border-box; }
 .headRow { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--el-text-color-secondary); flex: none; }
 .headMain b { font-size: 13px; color: var(--el-text-color-primary); }

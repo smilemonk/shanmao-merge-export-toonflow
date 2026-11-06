@@ -34,7 +34,13 @@ try {
   }
   const notice = notices.map(item => item.trim()).join("\n\n");
   const end = bundle.indexOf("\n");
-  await writeFile(artifact, `${bundle.slice(0, end)}\n/*!\n${notice.replaceAll("*/", "* /")}\n*/${bundle.slice(end)}`);
+  // GitHub 的相对图片路径只在仓库里有效，安装包内说明不请求这些图片。
+  const header = /^\/\*! toonflowNode:(.*) \*\/$/.exec(bundle.slice(0, end));
+  if (!header) throw new Error("官方 SDK 输出缺少节点元数据");
+  const metadata = JSON.parse(header[1]);
+  metadata.readme = metadata.readme.replace(/<!-- github-images:start -->[\s\S]*?<!-- github-images:end -->\n*/g, "");
+  const banner = JSON.stringify(metadata).replaceAll("/", "\\u002f");
+  await writeFile(artifact, `/*! toonflowNode:${banner} */\n/*!\n${notice.replaceAll("*/", "* /")}\n*/${bundle.slice(end)}`);
   await chmod(artifact, 0o644);
   await rename(artifact, join(output, fileName));
   console.log(join(output, fileName));

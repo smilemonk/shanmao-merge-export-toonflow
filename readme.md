@@ -2,7 +2,9 @@
 
 作者：山猫
 
-[市场封面](https://github.com/smilemonk/shanmao-merge-export-toonflow/blob/main/docs/cover.png) · [插件界面截图（示例数据）](https://github.com/smilemonk/shanmao-merge-export-toonflow/blob/main/docs/screenshot.png)
+<!-- github-images:start -->
+![市场封面](docs/cover.png)
+<!-- github-images:end -->
 
 把 Toonflow 画布上视频节点当前显示的素材合并导出为一个 MP4 文件。
 
@@ -11,7 +13,7 @@
 1. 安装 [shanmaoMergeExport.umd.js](build/shanmaoMergeExport.umd.js)，在画布添加「合并导出视频」节点。
 2. 面板按名称自然排序，默认选中已生成的视频。可逐个调整，或用全选快速切换。
 3. 点「合并导出」。各段轨道参数一致时，直接流拷贝。存在异档时，先查看分组和差异，再选择基准档。
-4. 完成后可以在节点里预览成片，也可以连给下游节点。通过右下角拖拽可调节面板尺寸。
+4. 完成后可以在节点里预览成片，也可以连给下游节点。默认宽 220 像素，通过右下角拖拽可调节面板尺寸。
 
 ### 流拷贝与转码
 
@@ -31,6 +33,13 @@
 ```
 
 文件名包含画布名、时间和短编号，同一秒的导出也有独立文件名。清单记录源素材及合并顺序。转码与拼接使用临时文件，导出结束后清理。停止或失败时，节点保留上一次成功的输出。
+
+<!-- github-images:start -->
+## 界面截图
+
+<img src="docs/screenshot.png" alt="插件运行界面，使用示例数据" width="420">
+
+<!-- github-images:end -->
 
 ## Agent 节点操作
 
