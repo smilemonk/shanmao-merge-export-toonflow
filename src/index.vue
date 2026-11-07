@@ -83,6 +83,7 @@ import { useNodePersistence } from "@toonflow/nodes-scaffold/nodeDocument";
 import type { BrowserFfmpegFactory } from "@toonflow/nodes-scaffold/nodeFfmpeg";
 import type { Node as FlowNode } from "@vue-flow/core";
 import { alignmentOptions, canvasFileName, concatList, inspectMedia, supportsAlignmentGeometry, workspacePath } from "./media";
+import { isNameCollision, publishExport } from "./publish";
 
 defineOptions({
   inheritAttrs: false,
@@ -231,13 +232,6 @@ function formatDur(seconds: number | null) {
   return seconds == null ? "" : `${seconds.toFixed(1)}s`;
 }
 
-function stamp() {
-  const now = new Date();
-  const parts = [now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()]
-    .map(value => String(value).padStart(2, "0"));
-  return `${parts.slice(0, 3).join("")}_${parts.slice(3).join("")}`;
-}
-
 function clearOffer() {
   if (!transcodeOffer.value) return;
   transcodeOffer.value = undefined;
@@ -268,8 +262,6 @@ async function runMerge(nodeIds: string[], options: { baseKey?: string; expected
   progress.value = 0;
   let workspace: ReturnType<typeof files.getWorkspaceFiles> | undefined;
   let stage: string | undefined;
-  let archive: string | undefined;
-  let published = false;
   try {
     signal.throwIfAborted();
     if (nodeIds.length < 2 || new Set(nodeIds).size !== nodeIds.length) throw new Error("请选择至少 2 个不同的已生成视频节点");
@@ -326,17 +318,14 @@ async function runMerge(nodeIds: string[], options: { baseKey?: string; expected
 
     const root = "合并导出视频";
     const input = `${root}/input/${name}`;
-    const exportId = `${name}_${stamp()}_${crypto.randomUUID().slice(0, 8)}`;
-    const output = `${root}/${exportId}.mp4`;
-    const pendingArchive = `${input}/${exportId}.txt`;
     for (const dir of [root, `${root}/input`, input]) {
       signal.throwIfAborted();
-      await workspace.mkdir(dir).catch((error: { code?: string; response?: { data?: { data?: { code?: string } } } }) => {
-        if (error.code !== "EEXIST" && error.response?.data?.data?.code !== "EEXIST") throw error;
+      await workspace.mkdir(dir).catch(error => {
+        if (!isNameCollision(error)) throw error;
       });
     }
     signal.throwIfAborted();
-    const stageDir = `${input}/.merge-${exportId.slice(-8)}`;
+    const stageDir = `${input}/.merge-${crypto.randomUUID()}`;
     await workspace.mkdir(stageDir);
     stage = stageDir;
 
@@ -380,11 +369,7 @@ async function runMerge(nodeIds: string[], options: { baseKey?: string; expected
       throw new Error("合并结果的轨道、尺寸或时长异常，未发布成片");
     }
     signal.throwIfAborted();
-    await workspace.write(pendingArchive, concatList(picked.map(item => item.path), 3), true);
-    archive = pendingArchive;
-    signal.throwIfAborted();
-    await workspace.rename(partial, output);
-    published = true;
+    const output = await publishExport(workspace, { root, input, name, partial }, concatList(picked.map(item => item.path), 3), signal);
     outputs.value.video = { dataType: "VIDEO", value: { url: output, mimeType: "video/mp4" } };
     setStatus(`完成：${output} · ${formatDur(result.duration)}（${different.length ? `${different.length} 段已转码，其余原样` : "零转码"}）`, "done");
     progress.value = 100;
@@ -394,7 +379,6 @@ async function runMerge(nodeIds: string[], options: { baseKey?: string; expected
     setStatus(signal.aborted ? message : `合并失败：${message}`, "error");
     return { error: message };
   } finally {
-    if (archive && !published) await workspace?.remove(archive).catch(() => {});
     if (stage) await workspace?.remove(stage, true).catch(() => {});
     abortRef.value = undefined;
   }
